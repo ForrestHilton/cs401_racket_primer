@@ -40,7 +40,7 @@
 
 ;; natural/direct recursion like this means we still have work to do after our recursive call
 (define (mylen lst) (cond [(null? lst) 0] 
-                        [(null? lst) (+ 1 (len (cdr lst)))]
+                        [(cons? lst) (+ 1 (mylen (cdr lst)))]
                         [else (error "not a list")]))
 
 (check-expect (mylen (list 0 1 2 3)) 4)
@@ -58,6 +58,30 @@
 ;;                                         ['() #t]
 ;;                                         [_ #f])))
 
+(define (takefront  lst n) (match lst ['() '()] [(cons x tail) (if (= n 0) '() (cons x (takefront (cdr lst) (- n 1))))]))
+
+(check-expect (takefront '(1 2 3 4 5) 3) '(1 2 3))
+
 ;; structural recursion is following the structure of the data structure
-(define (dropfront lst n) (if (= n 0) lst (if (cons? lst) (dropfront (cdr lst) n-1) '())) )
+(define (dropfront lst n) (if (= n 0) lst (if (cons? lst) (dropfront (cdr lst) (- n 1)) '())) )
+
+(define (append lst0 lst1) (if (null? lst0) 
+                             lst1
+                             (cons (car lst0) (append (cdr lst0) lst1))
+                             ))
+(check-expect (append '(1 2) '(3 4)) '(1 2 3 4))
+
+;; good example of accumulator passing style
+(define (reverse lst [rev '()]) 
+  (if (null? lst) 
+    rev
+    (reverse (cdr lst) (cons (car lst) rev))
+    ))
+
+(check-expect (reverse '(1 2 3 4)) '(4 3 2 1))
+
+;; foldl generalizes accumulator passing style
+(check-expect (foldl + 0 '(1 2 3 4)) 10)
+(check-expect (foldl (lambda (x acc) (+ acc x)) 0 '(1 2 3 4)) 10)
+
 (test)
