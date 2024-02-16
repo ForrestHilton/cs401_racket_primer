@@ -54,9 +54,16 @@
 (check-expect (tail-len (list 0 1 2 3)) 4)
 ;; this is a higher order thing in Russle's type theory because the set that this represents is 
 ;; a function (relation) that is itself a function (relation)
-;; (define (listof pred) (define (f lst) (match lst [(cons x tail) (and (pred x) (f tail))]
-;;                                         ['() #t]
-;;                                         [_ #f])))
+(define (listof pred)
+  (define (f lst) (match lst [(cons x tail) (and (pred x) (f tail))]
+                             ['() #t]
+                             [_ #f]))
+  f
+  )
+
+(check-expect ((listof list?) '(() () () ())) #t)
+(check-expect ((listof list?) '(() 3 () ())) #f)
+
 
 (define (takefront  lst n) (match lst ['() '()] [(cons x tail) (if (= n 0) '() (cons x (takefront (cdr lst) (- n 1))))]))
 
