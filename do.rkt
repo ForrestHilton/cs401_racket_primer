@@ -65,11 +65,19 @@
 (check-expect ((listof list?) '(() 3 () ())) #f)
 
 
-(define (takefront  lst n) (match lst ['() '()] [(cons x tail) (if (= n 0) '() (cons x (takefront (cdr lst) (- n 1))))]))
+(define (takefront  lst n) (match lst ['() '()]
+                             [(cons x tail) ; pattern
+                              (if (= n 0) 
+                                '()
+                                (cons x (takefront tail (- n 1))))]))
+
+(check-expect (takefront '(1 2 3) 2) '(1 2))
 
 (check-expect (takefront '(1 2 3 4 5) 3) '(1 2 3))
 
 ;; structural recursion is following the structure of the data structure
+; if can be a special form or a macro. applicative evaluation evaluates the args first
+; normal evaluation order means we substitute all variables and functions before evaluating
 (define (dropfront lst n) (if (= n 0) lst (if (cons? lst) (dropfront (cdr lst) (- n 1)) '())) )
 
 (define (append lst0 lst1) (if (null? lst0) 
@@ -90,5 +98,25 @@
 ;; foldl generalizes accumulator passing style
 (check-expect (foldl + 0 '(1 2 3 4)) 10)
 (check-expect (foldl (lambda (x acc) (+ acc x)) 0 '(1 2 3 4)) 10)
+
+(check-expect (foldr cons '() '(1 2 3 4)) '(1 2 3 4))
+
+( define (myfoldr fun acc lst)
+         (reverse (if (equal? lst '()) 
+                    acc
+                    (myfoldr fun (fun (car lst) acc) (cdr lst))
+                    )))
+
+(check-expect (myfoldr cons '() '(1 2 3 4)) '(1 2 3 4))
+; cons is the exception for taking the accumulator second
+; therefore the racket convention is worse than the haskell convention and 
+; we might need lambda's just to change the argument order
+
+(define (myfoldl fun acc lst) 
+  (if (null? lst) 
+    acc
+    (myfoldl fun (fun (car lst) acc) (cdr lst))
+    ))
+
 
 (test)
