@@ -101,13 +101,6 @@
 
 (check-expect (foldr cons '() '(1 2 3 4)) '(1 2 3 4))
 
-( define (myfoldr fun acc lst)
-         (reverse (if (equal? lst '()) 
-                    acc
-                    (myfoldr fun (fun (car lst) acc) (cdr lst))
-                    )))
-
-(check-expect (myfoldr cons '() '(1 2 3 4)) '(1 2 3 4))
 ; cons is the exception for taking the accumulator second
 ; therefore the racket convention is worse than the haskell convention and 
 ; we might need lambda's just to change the argument order
@@ -119,4 +112,17 @@
     ))
 
 
+( define (myfoldr fun acc lst)
+         (if (null? lst) 
+            acc
+            (fun (cdr lst) (myfoldr fun acc (cdr lst)))
+            ))
+
+(check-expect (myfoldr expt 2 '(2 3)) (foldr expt 2 '(2 3)))
+
+(define (mymap fun lst) 
+  (myfoldr (lambda (x acc) (cons (fun x) acc))
+           '()
+           lst))
+;; (check-expect (mymap (lambda )))
 (test)
