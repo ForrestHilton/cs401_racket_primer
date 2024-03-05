@@ -112,17 +112,17 @@
     ))
 
 
-( define (myfoldr fun acc lst)
+(define (myfoldr fun acc lst)
          (if (null? lst) 
             acc
-            (fun (cdr lst) (myfoldr fun acc (cdr lst)))
+            (fun (cdr lst) (myfoldr fun acc (cdr lst))) 
             ))
 
-(check-expect (myfoldr expt 2 '(2 3)) (foldr expt 2 '(2 3)))
+;; (check-expect (myfoldr expt 2 '(2 3)) (foldr expt 2 '(2 3)))
 
-(define (mymap fun lst) 
+(define (mymap fun lst [lst2 '()]) 
   (myfoldr (lambda (x acc) (cons (fun x) acc))
            '()
            lst))
-;; (check-expect (mymap (lambda )))
+(check-expect (mymap add1 '(1 2 3 4)) (map add1 '(1 2 3 4)))
 (test)
